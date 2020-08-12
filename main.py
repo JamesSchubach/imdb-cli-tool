@@ -31,11 +31,10 @@ def getActorName():
     # return input("\nHello, Please enter the Movie Stars Name: ")
     return user_input
 
+
 # A function, given an name will scrap data from IMDB for a list of actors
 # Input -> actor_name: string
 # Return -> actor_list: list of tuples, (actor_name, url)
-
-
 def getActors(actor_name):
     query = "find?q=" + actor_name.replace(" ", "+") + '&s=nm'
 
@@ -83,11 +82,10 @@ def getSpecificActor(actor_list):
 
     return actor_list[indx]
 
+
 # This gets a list of the movies that an actor is involved with
 # input -> actor: Tuple (actor_name, url), reverse: bool
 # return -> movie_list: object { name: string, movies: list }
-
-
 def getMovies(actor, reverse):
     query = actor[1]
     actor_name = actor[0]
@@ -112,20 +110,18 @@ def getMovies(actor, reverse):
 def printMovies(movies):
     [print(movie) for movie in movies["movies"]]
 
+
 # Simple function to send the list of movies to a JSON file
 # input -> actor_name: string, movie_list: object { name: string, movies: list }
-
-
 def sendToJson(actor_name, movie_list):
     with open(actor_name.replace(" ", "_") + '_movies.json', 'w',  encoding='utf-8') as f:
         json.dump(movie_list, f, ensure_ascii=False,
                   indent=4)
 
+
 # Helper function to deal with yes or no responses
 # input -> question: string
 # return -> bool
-
-
 def handleYesNo(question):
     while True:
         user_input = input(
@@ -135,15 +131,15 @@ def handleYesNo(question):
         else:
             print("That wasn't valid option, try again ...")
 
+
 # Another helper function, the converts yes, y to true
 # input -> string: string
 # return -> bool
-
-
 def str2bool(string):
     return string in ('yes', 'y')
 
 
+# Helper function to quit program when needed
 def quitProgram():
     print("This name you provided does not seem to be an actor")
     sys.exit("This script will now quit")
