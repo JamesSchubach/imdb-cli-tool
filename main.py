@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from requests import get
 import json
 import re
+import sys
 
 # Global variables for imdb and parser
 base_url = 'https://www.imdb.com/'
@@ -30,6 +31,10 @@ def getActorName():
     # return input("\nHello, Please enter the Movie Stars Name: ")
     return user_input
 
+# A function, given an name will scrap data from IMDB for a list of actors
+# Input -> actor_name: string
+# Return -> actor_list: list of tuples, (actor_name, url)
+
 
 def getActors(actor_name):
     query = "find?q=" + actor_name.replace(" ", "+") + '&s=nm'
@@ -42,6 +47,7 @@ def getActors(actor_name):
     actors = results.findAll("td", {"class": "result_text"})
 
     # List comprehension which returns a list of tuples, in the form (Actor Name, URL for Actor)
+    # Fun implemnetation however, extremely hard to read
     # actor_list = [(el[0].getText(), el[0]['href'])
     #               for actor in actors if (el := actor.findAll('a')) != 'NaN']
     actor_list = []
@@ -52,6 +58,9 @@ def getActors(actor_name):
     return actor_list
 
 
+# If getActors returns a list of size > 1, this function is called to get a specific actor
+# input -> actor_list: list of tuples, (actor_name, url)
+# return -> tuple: (actor_name, url)
 def getSpecificActor(actor_list):
     # Prints out the list of actors with a enumerated number
     [print((str(i) + "."), actor[0]) for i, actor in enumerate(actor_list, 1)]
@@ -70,6 +79,10 @@ def getSpecificActor(actor_list):
             user_input = print("Please enter a valid number listed above")
 
     return actor_list[indx]
+
+# This gets a list of the movies that an actor is involved with
+# input -> actor: Tuple (actor_name, url), reverse: bool
+# return -> movie_list: object { name: string, movies: list }
 
 
 def getMovies(actor, reverse):
@@ -93,14 +106,20 @@ def getMovies(actor, reverse):
 
 
 def printMovies(movies):
-    # Prints the list of movies that the actor is in
     [print(movie) for movie in movies["movies"]]
+
+# Simple function to send the list of movies to a JSON file
+# input -> actor_name: string, movie_list: object { name: string, movies: list }
 
 
 def sendToJson(actor_name, movie_list):
     with open(actor_name.replace(" ", "_") + '_movies.json', 'w',  encoding='utf-8') as f:
         json.dump(movie_list, f, ensure_ascii=False,
                   indent=4)
+
+# Helper function to deal with yes or no responses
+# input -> question: string
+# return -> bool
 
 
 def handleYesNo(question):
@@ -111,6 +130,10 @@ def handleYesNo(question):
             return str2bool(user_input)
         else:
             print("That wasn't valid option, try again ...")
+
+# Another helper function, the converts yes, y to true
+# input -> string: string
+# return -> bool
 
 
 def str2bool(string):
@@ -133,7 +156,11 @@ if __name__ == "__main__":
     user_input = handleYesNo(question)
 
     movies = getMovies(actor, user_input)
-    print("\nThe movies that %s is in are:" % actor_name)
+    if len(movies["movies"]) > 0:
+        print("\nThe movie\s that %s is in are:" % actor_name)
+    else:
+        print("This name you provided does not seem to be an actor")
+        sys.exit("This script will now quit")
     printMovies(movies)
     question = "Would you like these movies published to a JSON document? [y/n]: "
     user_input = handleYesNo(question)
