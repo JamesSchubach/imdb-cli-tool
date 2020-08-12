@@ -2,8 +2,7 @@ from bs4 import BeautifulSoup
 from requests import get
 import json
 
-"""
-"""
+# Global variables for imdb and parser
 base_url = 'https://www.imdb.com/'
 parser = 'html.parser'
 
@@ -11,19 +10,24 @@ parser = 'html.parser'
 def getResponse(base, query):
     return get(base+query)
 
+# Helper function that makes reversing cleaner
+
 
 def reverseList(list, bool):
     return list[::-1] if not bool else list
 
+# Simple function that gets actor name
+
 
 def getActorName():
-    # user_input = input("\nHello, Please enter the Movie Stars Name: ")
-    user_input = "Tom Cruise"
+    # return input("\nHello, Please enter the Movie Stars Name: ")
+    return "Tom Cruise"
 
-    query = "find?q=" + user_input.replace(" ", "+") + '&s=nm'
+
+def getActors(actor_name):
+    query = "find?q=" + actor_name.replace(" ", "+") + '&s=nm'
 
     response = getResponse(base_url, query)
-
     # Parsing through the response data to grab a list of given actors for the actor name
     soup = BeautifulSoup(response.text, parser)
 
@@ -91,12 +95,14 @@ def sendToJson(actor_name, movie_list):
 if __name__ == "__main__":
     print("IMDB Movie Star Search")
     print("**********************")
-    actors = getActorName()
+    actor_name = getActorName()
+    actors = getActors(actor_name)
     if len(actors) > 1:
         actor = getSpecificActor(actors)
     else:
         actor = actors[0]
     actor_name = actor[0]
+
     print("\nAwesome, I will now list the movies %s is in" % actor_name)
     user_input = input(
         "By the way, would you like the movies listed in newest first? [y/n]: ")
