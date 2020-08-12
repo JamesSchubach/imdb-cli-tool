@@ -15,8 +15,8 @@ def getResponse(base, query):
 
 
 # Helper function that makes reversing cleaner
-def reverseList(list, bool):
-    return list[::-1] if not bool else list
+def reverseList(my_list, bool):
+    return my_list[::-1] if not bool else my_list
 
 
 # Simple function that gets actor name
@@ -43,7 +43,10 @@ def getActors(actor_name):
     # Parsing through the response data to grab a list of given actors for the actor name
     soup = BeautifulSoup(response.text, parser)
 
-    results = soup.findAll("table", {"class": "findList"})[0]
+    try:
+        results = soup.findAll("table", {"class": "findList"})[0]
+    except IndexError as err:
+        return []
     actors = results.findAll("td", {"class": "result_text"})
 
     # List comprehension which returns a list of tuples, in the form (Actor Name, URL for Actor)
@@ -87,6 +90,7 @@ def getSpecificActor(actor_list):
 
 def getMovies(actor, reverse):
     query = actor[1]
+    actor_name = actor[0]
     response = getResponse(base_url, query)
 
     # Once again parses through the given response, returning all the films given actor is in
@@ -140,6 +144,11 @@ def str2bool(string):
     return string in ('yes', 'y')
 
 
+def quitProgram():
+    print("This name you provided does not seem to be an actor")
+    sys.exit("This script will now quit")
+
+
 if __name__ == "__main__":
     print("IMDB Movie Star Search")
     print("**********************")
@@ -147,8 +156,10 @@ if __name__ == "__main__":
     actors = getActors(actor_name)
     if len(actors) > 1:
         actor = getSpecificActor(actors)
-    else:
+    elif len(actors) == 1:
         actor = actors[0]
+    else:
+        quitProgram()
     actor_name = actor[0]
 
     print("\nAwesome, I will now list the movies %s is in" % actor_name)
@@ -159,8 +170,7 @@ if __name__ == "__main__":
     if len(movies["movies"]) > 0:
         print("\nThe movie\s that %s is in are:" % actor_name)
     else:
-        print("This name you provided does not seem to be an actor")
-        sys.exit("This script will now quit")
+        quitProgram()
     printMovies(movies)
     question = "Would you like these movies published to a JSON document? [y/n]: "
     user_input = handleYesNo(question)
