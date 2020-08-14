@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from requests import get
+import requests
 import json
 import re
 import sys
@@ -10,17 +10,17 @@ parser = 'html.parser'
 regex = "^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*$"
 
 
-def getResponse(base, query):
-    return get(base+query)
+def get_response(base, query):
+    return requests.get(base + query)
 
 
 # Helper function that makes reversing cleaner
-def reverseList(my_list, bool):
-    return my_list[::-1] if not bool else my_list
+def reverse_list(my_list, bool):
+    return reversed(my_list) if not bool else my_list
 
 
 # Simple function that gets actor name
-def getActorName():
+def get_actor_name():
     while True:
         user_input = input("\nHello, Please enter the Movie Stars Name: ")
         # user_input = "Tom Cruise"
@@ -32,13 +32,13 @@ def getActorName():
     return user_input
 
 
-# A function, given an name will scrap data from IMDB for a list of actors
-# Input -> actor_name: string
-# Return -> actor_list: list of tuples, (actor_name, url)
-def getActors(actor_name):
+""" A function, given an name will scrap data from IMDB for a list of actors
+Input -> actor_name: string
+Return -> actor_list: list of tuples, (actor_name, url) """
+def get_actors(actor_name):
     query = "find?q=" + actor_name.replace(" ", "+") + '&s=nm'
 
-    response = getResponse(base_url, query)
+    response = get_response(base_url, query)
     # Parsing through the response data to grab a list of given actors for the actor name
     soup = BeautifulSoup(response.text, parser)
 
@@ -49,7 +49,7 @@ def getActors(actor_name):
     actors = results.findAll("td", {"class": "result_text"})
 
     # List comprehension which returns a list of tuples, in the form (Actor Name, URL for Actor)
-    # Fun implemnetation however, extremely hard to read
+    # Fun implementation however, extremely hard to read
     # actor_list = [(el[0].getText(), el[0]['href'])
     #               for actor in actors if (el := actor.findAll('a')) != 'NaN']
     actor_list = []
@@ -60,10 +60,10 @@ def getActors(actor_name):
     return actor_list
 
 
-# If getActors returns a list of size > 1, this function is called to get a specific actor
-# input -> actor_list: list of tuples, (actor_name, url)
-# return -> tuple: (actor_name, url)
-def getSpecificActor(actor_list):
+""" If get_actors returns a list of size > 1, this function is called to get a specific actor
+input -> actor_list: list of tuples, (actor_name, url)
+return -> tuple: (actor_name, url) """
+def get_specific_actor(actor_list):
     # Prints out the list of actors with a enumerated number
     [print((str(i) + "."), actor[0]) for i, actor in enumerate(actor_list, 1)]
     print("It seems your query has returned a couple of actors, which actor were you looking for? ")
@@ -78,18 +78,18 @@ def getSpecificActor(actor_list):
                 raise ValueError()
             break
         except ValueError as err:
-            user_input = print("Please enter a valid number listed above")
+            print("Please enter a valid number listed above")
 
     return actor_list[indx]
 
 
-# This gets a list of the movies that an actor is involved with
-# input -> actor: Tuple (actor_name, url), reverse: bool
-# return -> movie_list: object { name: string, movies: list }
-def getMovies(actor, reverse):
+""" This gets a list of the movies that an actor is involved with
+input -> actor: Tuple (actor_name, url), reverse: bool
+return -> movie_list: object { name: string, movies: list } """
+def get_movies(actor, reverse):
     query = actor[1]
     actor_name = actor[0]
-    response = getResponse(base_url, query)
+    response = get_response(base_url, query)
 
     # Once again parses through the given response, returning all the films given actor is in
     soup = BeautifulSoup(response.text, parser)
@@ -101,74 +101,70 @@ def getMovies(actor, reverse):
                   "movies": []
                   }
 
-    for movie in reverseList(movies, reverse):
+    for movie in reverse_list(movies, reverse):
         movie = movie[0].getText()
         movie_list["movies"].append(movie)
     return movie_list
 
 
-def printMovies(movies):
+def print_movies(movies):
     [print(movie) for movie in movies["movies"]]
 
 
-# Simple function to send the list of movies to a JSON file
-# input -> actor_name: string, movie_list: object { name: string, movies: list }
-def sendToJson(actor_name, movie_list):
-    with open(actor_name.replace(" ", "_") + '_movies.json', 'w',  encoding='utf-8') as f:
+"""Simple function to send the list of movies to a JSON file
+input -> actor_name: string, movie_list: object { name: string, movies: list }"""
+def send_to_json(actor_name, movie_list):
+    with open(actor_name.replace(" ", "_") + '_movies.json', 'w', encoding='utf-8') as f:
         json.dump(movie_list, f, ensure_ascii=False,
                   indent=4)
 
 
-# Helper function to deal with yes or no responses
-# input -> question: string
-# return -> bool
-def handleYesNo(question):
+"""Helper function to deal with yes or no responses
+input -> question: string
+return -> bool"""
+def handle_yes_no(question):
     while True:
         user_input = input(
             question)
-        if (user_input in ('yes', 'no', 'y', 'n')):
-            return str2bool(user_input)
+        if user_input in ('yes', 'no', 'y', 'n'):
+            return str_to_bool(user_input)
         else:
             print("That wasn't valid option, try again ...")
 
 
-# Another helper function, the converts yes, y to true
-# input -> string: string
-# return -> bool
-def str2bool(string):
+"""Another helper function, the converts yes, y to true
+input -> string: string
+return -> bool"""
+def str_to_bool(string):
     return string in ('yes', 'y')
-
-
-# Helper function to quit program when needed
-def quitProgram():
-    print("This name you provided does not seem to be an actor")
-    sys.exit("This script will now quit")
 
 
 if __name__ == "__main__":
     print("IMDB Movie Star Search")
     print("**********************")
-    actor_name = getActorName()
-    actors = getActors(actor_name)
+    actor_name = get_actor_name()
+    actors = get_actors(actor_name)
     if len(actors) > 1:
-        actor = getSpecificActor(actors)
+        actor = get_specific_actor(actors)
     elif len(actors) == 1:
         actor = actors[0]
     else:
-        quitProgram()
+        print("This name you provided does not seem to be an actor")
+        sys.exit("This script will now quit")
     actor_name = actor[0]
 
     print("\nAwesome, I will now list the movies %s is in" % actor_name)
     question = "By the way, would you like the movies listed in newest first? [y/n]: "
-    user_input = handleYesNo(question)
+    user_input = handle_yes_no(question)
 
-    movies = getMovies(actor, user_input)
+    movies = get_movies(actor, user_input)
     if len(movies["movies"]) > 0:
         print("\nThe movie\s that %s is in are:" % actor_name)
     else:
-        quitProgram()
-    printMovies(movies)
+        print("This name you provided does not seem to be an actor")
+        sys.exit("This script will now quit")
+    print_movies(movies)
     question = "Would you like these movies published to a JSON document? [y/n]: "
-    user_input = handleYesNo(question)
+    user_input = handle_yes_no(question)
     if user_input:
-        sendToJson(actor_name, movies)
+        send_to_json(actor_name, movies)
