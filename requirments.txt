@@ -1,0 +1,5 @@
+####### imdb-cli-requirements.txt #######
+#
+###### Requirements without Version Specifiers ######
+beautifulsoup4
+#

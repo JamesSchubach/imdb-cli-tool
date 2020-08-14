@@ -32,10 +32,11 @@ def get_actor_name():
     return user_input
 
 
-""" A function, given an name will scrap data from IMDB for a list of actors
-Input -> actor_name: string
-Return -> actor_list: list of tuples, (actor_name, url) """
 def get_actors(actor_name):
+    """ A function, given an name will scrap data from IMDB for a list of actors
+    Input -> actor_name: string
+    Return -> actor_list: list of tuples, (actor_name, url) """
+
     query = "find?q=" + actor_name.replace(" ", "+") + '&s=nm'
 
     response = get_response(base_url, query)
@@ -60,10 +61,10 @@ def get_actors(actor_name):
     return actor_list
 
 
-""" If get_actors returns a list of size > 1, this function is called to get a specific actor
-input -> actor_list: list of tuples, (actor_name, url)
-return -> tuple: (actor_name, url) """
 def get_specific_actor(actor_list):
+    """ If get_actors returns a list of size > 1, this function is called to get a specific actor
+    input -> actor_list: list of tuples, (actor_name, url)
+    return -> tuple: (actor_name, url) """
     # Prints out the list of actors with a enumerated number
     [print((str(i) + "."), actor[0]) for i, actor in enumerate(actor_list, 1)]
     print("It seems your query has returned a couple of actors, which actor were you looking for? ")
@@ -83,10 +84,10 @@ def get_specific_actor(actor_list):
     return actor_list[indx]
 
 
-""" This gets a list of the movies that an actor is involved with
-input -> actor: Tuple (actor_name, url), reverse: bool
-return -> movie_list: object { name: string, movies: list } """
 def get_movies(actor, reverse):
+    """ This gets a list of the movies that an actor is involved with
+    input -> actor: Tuple (actor_name, url), reverse: bool
+    return -> movie_list: object { name: string, movies: list } """
     query = actor[1]
     actor_name = actor[0]
     response = get_response(base_url, query)
@@ -111,18 +112,18 @@ def print_movies(movies):
     [print(movie) for movie in movies["movies"]]
 
 
-"""Simple function to send the list of movies to a JSON file
-input -> actor_name: string, movie_list: object { name: string, movies: list }"""
 def send_to_json(actor_name, movie_list):
+    """Simple function to send the list of movies to a JSON file
+    input -> actor_name: string, movie_list: object { name: string, movies: list }"""
     with open(actor_name.replace(" ", "_") + '_movies.json', 'w', encoding='utf-8') as f:
         json.dump(movie_list, f, ensure_ascii=False,
                   indent=4)
 
 
-"""Helper function to deal with yes or no responses
-input -> question: string
-return -> bool"""
 def handle_yes_no(question):
+    """Helper function to deal with yes or no responses
+    input -> question: string
+    return -> bool"""
     while True:
         user_input = input(
             question)
@@ -132,10 +133,10 @@ def handle_yes_no(question):
             print("That wasn't valid option, try again ...")
 
 
-"""Another helper function, the converts yes, y to true
-input -> string: string
-return -> bool"""
 def str_to_bool(string):
+    """Another helper function, the converts yes, y to true
+    input -> string: string
+    return -> bool"""
     return string in ('yes', 'y')
 
 
