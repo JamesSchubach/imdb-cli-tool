@@ -1,6 +1,6 @@
 # imdb-cli-tool
 
-<p>A fun side-project that queries IMDB and allows a user to enter a movie star’s name, prints the list of movies that star has appeared in date order to the screen. Will also prompt user to print to JSON document</p>
+<p>A fun little side-project that queries IMDB and allows a user to enter a movie star’s name, prints the list of movies that star has appeared in date order to the screen. Will also prompt user to print to JSON document</p>
 <p>Written in python, using BeautifulSoup, requests, json, re, sys libraries</p>
 
 ## Usage
